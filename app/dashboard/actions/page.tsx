@@ -74,7 +74,7 @@ export default function ActionsPage() {
         <h1 className="text-3xl font-bold text-white">训练动作</h1>
         <Link
           href="/dashboard/actions/new"
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+          className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
         >
           添加新动作
         </Link>
@@ -85,7 +85,7 @@ export default function ActionsPage() {
           <p className="text-zinc-400 mb-4">还没有训练动作</p>
           <Link
             href="/dashboard/actions/new"
-            className="text-blue-500 hover:text-blue-400"
+            className="text-purple-400 hover:text-purple-300"
           >
             添加第一个训练动作
           </Link>
@@ -138,14 +138,14 @@ export default function ActionsPage() {
                   </Link>
                   <Link
                     href={`/dashboard/actions/${action.id}/edit`}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-center py-2 px-4 rounded transition-colors"
+                    className="flex-1 bg-purple-600 hover:bg-purple-700 text-white text-center py-2 px-4 rounded transition-colors"
                   >
                     编辑
                   </Link>
                   <button
                     onClick={() => handleDelete(action.id)}
                     disabled={deletingId === action.id}
-                    className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded transition-colors disabled:opacity-50"
+                    className="bg-zinc-700 hover:bg-zinc-600 text-white py-2 px-4 rounded transition-colors disabled:opacity-50"
                   >
                     {deletingId === action.id ? "删除中..." : "删除"}
                   </button>

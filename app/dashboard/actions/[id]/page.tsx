@@ -85,7 +85,7 @@ export default function ActionDetailPage() {
         </div>
         <Link
           href="/dashboard/actions"
-          className="text-blue-500 hover:text-blue-400"
+          className="text-purple-400 hover:text-purple-300"
         >
           ← 返回列表
         </Link>
@@ -98,7 +98,7 @@ export default function ActionDetailPage() {
       <div className="mb-8">
         <Link
           href="/dashboard/actions"
-          className="text-blue-500 hover:text-blue-400 mb-4 inline-block"
+          className="text-purple-400 hover:text-purple-300 mb-4 inline-block"
         >
           ← 返回列表
         </Link>
@@ -114,14 +114,14 @@ export default function ActionDetailPage() {
           <div className="flex gap-3">
             <Link
               href={`/dashboard/actions/${action.id}/edit`}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+              className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
             >
               编辑
             </Link>
             <button
               onClick={handleDelete}
               disabled={deleting}
-              className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors disabled:opacity-50"
+              className="bg-zinc-700 hover:bg-zinc-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors disabled:opacity-50"
             >
               {deleting ? "删除中..." : "删除"}
             </button>
@@ -157,7 +157,7 @@ export default function ActionDetailPage() {
                       onClick={() => setSelectedImageIndex(index)}
                       className={`relative h-20 rounded-lg overflow-hidden border-2 transition-colors ${
                         selectedImageIndex === index
-                          ? "border-blue-500"
+                          ? "border-purple-500"
                           : "border-zinc-700 hover:border-zinc-600"
                       }`}
                     >

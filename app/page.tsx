@@ -50,7 +50,7 @@ export default async function Home() {
         <div className="flex justify-center gap-4">
           <Link
             href="/auth/login"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors"
+            className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors"
           >
             登录
           </Link>

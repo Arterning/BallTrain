@@ -1,19 +1,53 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
-export default function NewActionPage() {
+interface TrainingAction {
+  id: string;
+  name: string;
+  description: string;
+  images: { id: string; url: string }[];
+  videos: { id: string; url: string }[];
+}
+
+export default function EditActionPage() {
+  const params = useParams();
   const router = useRouter();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [videos, setVideos] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetchAction();
+  }, [params.id]);
+
+  const fetchAction = async () => {
+    try {
+      const response = await fetch(`/api/actions/${params.id}`);
+      if (response.ok) {
+        const data: TrainingAction = await response.json();
+        setName(data.name);
+        setDescription(data.description);
+        setImages(data.images.map((img) => img.url));
+        setVideos(data.videos.map((vid) => vid.url));
+      } else {
+        setError("动作不存在或已被删除");
+      }
+    } catch (error) {
+      console.error("Failed to fetch action:", error);
+      setError("加载失败");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -69,11 +103,11 @@ export default function NewActionPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
+    setSaving(true);
 
     try {
-      const response = await fetch("/api/actions", {
-        method: "POST",
+      const response = await fetch(`/api/actions/${params.id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -82,28 +116,52 @@ export default function NewActionPage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || "创建失败");
+        throw new Error(data.error || "更新失败");
       }
 
-      router.push("/dashboard/actions");
+      router.push(`/dashboard/actions/${params.id}`);
       router.refresh();
     } catch (error: any) {
-      setError(error.message || "创建失败");
+      setError(error.message || "更新失败");
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-zinc-400">加载中...</div>
+      </div>
+    );
+  }
+
+  if (error && !name) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded mb-6">
+          {error}
+        </div>
+        <Link
+          href="/dashboard/actions"
+          className="text-purple-400 hover:text-purple-300"
+        >
+          ← 返回列表
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto">
       <div className="mb-8">
         <Link
-          href="/dashboard/actions"
+          href={`/dashboard/actions/${params.id}`}
           className="text-purple-400 hover:text-purple-300 mb-4 inline-block"
         >
-          ← 返回列表
+          ← 返回详情
         </Link>
-        <h1 className="text-3xl font-bold text-white">添加训练动作</h1>
+        <h1 className="text-3xl font-bold text-white">编辑训练动作</h1>
       </div>
 
       {error && (
@@ -236,13 +294,13 @@ export default function NewActionPage() {
         <div className="flex gap-4">
           <button
             type="submit"
-            disabled={loading || uploading}
+            disabled={saving || uploading}
             className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "创建中..." : "创建动作"}
+            {saving ? "保存中..." : "保存修改"}
           </button>
           <Link
-            href="/dashboard/actions"
+            href={`/dashboard/actions/${params.id}`}
             className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors text-center"
           >
             取消
