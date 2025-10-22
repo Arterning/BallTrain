@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 用户模型
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  password      String
+  name          String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // 关联
+  actions       TrainingAction[]
+  diaryEntries  DiaryEntry[]
+}
+
+// 训练动作模型
+model TrainingAction {
+  id            String         @id @default(cuid())
+  name          String
+  description   String         // 动作要领
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  userId        String
+
+  // 关联
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  images        ActionImage[]
+  videos        ActionVideo[]
+  diaryEntries  DiaryEntry[]
+}
+
+// 动作图片模型
+model ActionImage {
+  id            String         @id @default(cuid())
+  url           String         // 文件路径
+  actionId      String
+  createdAt     DateTime       @default(now())
+
+  // 关联
+  action        TrainingAction @relation(fields: [actionId], references: [id], onDelete: Cascade)
+}
+
+// 动作视频模型
+model ActionVideo {
+  id            String         @id @default(cuid())
+  url           String         // 文件路径
+  actionId      String
+  createdAt     DateTime       @default(now())
+
+  // 关联
+  action        TrainingAction @relation(fields: [actionId], references: [id], onDelete: Cascade)
+}
+
+// 训练日记模型
+model DiaryEntry {
+  id            String         @id @default(cuid())
+  date          DateTime       // 训练日期
+  reps          Int?           // 训练次数
+  sets          Int?           // 训练组数
+  duration      Int?           // 训练时长（分钟）
+  notes         String?        // 训练心得/备注
+  rating        Int?           // 完成质量评分 (1-5)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  userId        String
+  actionId      String
+
+  // 关联
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action        TrainingAction @relation(fields: [actionId], references: [id], onDelete: Cascade)
+}
