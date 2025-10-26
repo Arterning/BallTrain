@@ -5,7 +5,7 @@ import { prisma } from "@/app/lib/prisma";
 // GET - 获取单个训练动作
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -14,9 +14,11 @@ export async function GET(
       return NextResponse.json({ error: "未授权" }, { status: 401 });
     }
 
+    const { id } = await params;
+
     const action = await prisma.trainingAction.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id,
       },
       include: {
@@ -42,7 +44,7 @@ export async function GET(
 // PUT - 更新训练动作
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -51,13 +53,14 @@ export async function PUT(
       return NextResponse.json({ error: "未授权" }, { status: 401 });
     }
 
+    const { id } = await params;
     const body = await req.json();
     const { name, description, images, videos } = body;
 
     // 检查动作是否存在且属于当前用户
     const existingAction = await prisma.trainingAction.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id,
       },
     });
@@ -68,15 +71,15 @@ export async function PUT(
 
     // 删除旧的图片和视频
     await prisma.actionImage.deleteMany({
-      where: { actionId: params.id },
+      where: { actionId: id },
     });
     await prisma.actionVideo.deleteMany({
-      where: { actionId: params.id },
+      where: { actionId: id },
     });
 
     // 更新动作
     const action = await prisma.trainingAction.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name,
         description,
@@ -106,7 +109,7 @@ export async function PUT(
 // DELETE - 删除训练动作
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -115,10 +118,12 @@ export async function DELETE(
       return NextResponse.json({ error: "未授权" }, { status: 401 });
     }
 
+    const { id } = await params;
+
     // 检查动作是否存在且属于当前用户
     const existingAction = await prisma.trainingAction.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id,
       },
     });
@@ -129,7 +134,7 @@ export async function DELETE(
 
     // 删除动作（会级联删除关联的图片和视频）
     await prisma.trainingAction.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: "删除成功" });
