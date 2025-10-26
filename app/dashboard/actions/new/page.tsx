@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { useUploadThing } from "@/app/lib/uploadthing";
 
 export default function NewActionPage() {
   const router = useRouter();
@@ -14,6 +15,9 @@ export default function NewActionPage() {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+
+  const { startUpload: startImageUpload } = useUploadThing("imageUploader");
+  const { startUpload: startVideoUpload } = useUploadThing("videoUploader");
 
   const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -26,29 +30,20 @@ export default function NewActionPage() {
     setError("");
 
     try {
-      const uploadedUrls: string[] = [];
-
-      for (let i = 0; i < files.length; i++) {
-        const formData = new FormData();
-        formData.append("file", files[i]);
-
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!response.ok) {
-          throw new Error("上传失败");
-        }
-
-        const data = await response.json();
-        uploadedUrls.push(data.url);
-      }
+      const fileArray = Array.from(files);
 
       if (type === "image") {
-        setImages([...images, ...uploadedUrls]);
+        const uploadedFiles = await startImageUpload(fileArray);
+        if (uploadedFiles) {
+          const urls = uploadedFiles.map((file) => file.url);
+          setImages([...images, ...urls]);
+        }
       } else {
-        setVideos([...videos, ...uploadedUrls]);
+        const uploadedFiles = await startVideoUpload(fileArray);
+        if (uploadedFiles) {
+          const urls = uploadedFiles.map((file) => file.url);
+          setVideos([...videos, ...urls]);
+        }
       }
     } catch (error) {
       setError("文件上传失败");
